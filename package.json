@@ -1,0 +1,11 @@
+{
+  "name": "frp-demo",
+  "version": "1.0.0",
+  "description": "a simple register form to demostrate functional reactive programming",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon -w index.js index.js"
+  },
+  "author": "CJ Ting<fatelovely1128@gmail.com>",
+  "license": "ISC"
+}
