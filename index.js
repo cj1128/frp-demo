@@ -4,8 +4,27 @@ var app = express()
 
 app.use(express.static(path.join(__dirname, "html")))
 
-app.get("/test", function(req, res) {
-  res.end("this is the test")
+var reg = /^[a-zA-Z]+$/
+
+app.get("/check", function(req, res) {
+  var delay = Math.floor(Math.random() * 1000)
+  var username = req.query.username
+  setTimeout(function() {
+    var result = {
+      available: reg.test(username),
+      username: username,
+      delay: delay,
+    }
+    res.set({"Content-Type": "application/json"})
+    res.end(JSON.stringify(result))
+  },delay)
 })
 
-app.listen(8000)
+app.post("/register", function(req, res) {
+  res.end()
+})
+
+var port = 8000
+app.listen(port, function() {
+  console.log("App listen on: " + port)
+})
