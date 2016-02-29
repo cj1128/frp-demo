@@ -3,6 +3,7 @@
 <head>
   <title>FRP Demo</title>
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
+  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
   <style type="text/css">
     body {
       width: 800px;
@@ -11,12 +12,49 @@
     h1 {
       text-align: center;
     }
+    button:disabled {
+      background: #D2D2D2;
+      color: #726969;
+      cursor: not-allowed;
+      border: none;
+    }
+    button:disabled:hover {
+      color: #726969;
+      background: #D2D2D2;
+    }
+    #indicator, #result-ok, #result-bad {
+      float: right;
+      display: none;
+    }
+    #indicator {
+      color: #87B9ED;
+    }
+    #result-ok {
+      color: #81CC98;
+    }
+    #result-bad {
+      color: #E97C7C;
+    }
   </style>
 </head>
 <body>
 <h1>Functional Reactive Programming Demo</h1>
 <form>
-  <label>Username</label>
+  <label>
+    Username
+    <span id="indicator">
+      <i class="fa fa-spin fa-spinner"></i>
+      Checking availability
+    </span>
+    <span id="result-ok">
+      <i class="fa fa-check"></i>
+      OK
+    </span>
+    <span id="result-bad">
+      <i class="fa fa-close"></i>
+      Bad
+    </span>
+  </label>
   <input class="u-full-width" name="username" type="text" />
 
   <label>Password</label>
