@@ -4,6 +4,8 @@ var $btn = $("button")
 
 $btn.click(function(evt) {
   evt.preventDefault()
+  btnClicked = true
+  setButtonState()
 
   $.ajax({
     type: "POST",
@@ -19,26 +21,38 @@ $btn.click(function(evt) {
 })
 
 // Status variable
-var usernameAvailable, checkingUsername
+var usernameAvailable, checkingUsername, prevUsername, timeout, btnClicked, counter = 0
 
 $username.keyup(function(evt) {
+  var username = $username.val()
+  if(username === prevUsername) return
   usernameAvailable = false
-  checkingUsername = true
   setButtonState()
-  setIndicator()
-  $.ajax({
-    url: "/check",
-    data: {
-      username: $username.val(),
-    },
-    success: function(res) {
-      checkingUsername = false
-      usernameAvailable = res.available
-      setButtonState()
-      setIndicator()
-      showResult(res.available)
-    },
-  })
+  clearAllInfo()
+
+  if(username.length === 0) return
+
+  if(timeout) clearTimeout(timeout)
+  prevUsername = username
+  timeout = setTimeout(function() {
+    checkingUsername = true
+    toggleCheckingIndicator()
+    var id = ++counter
+    $.ajax({
+      url: "/check",
+      data: {
+        username: $username.val(),
+      },
+      success: function(res) {
+        if(id !== counter) return
+        checkingUsername = false
+        usernameAvailable = res.available
+        setButtonState()
+        toggleCheckingIndicator()
+        showResult()
+      },
+    })
+  }, 500)
 })
 
 $password.keyup(function(evt) {
@@ -48,11 +62,12 @@ $password.keyup(function(evt) {
 function setButtonState() {
   var enabled = $username.val().length > 0 &&
     $password.val().length > 0 &&
-    usernameAvailable
+    usernameAvailable &&
+    !btnClicked
   $btn.prop("disabled", !enabled)
 }
 
-function setIndicator() {
+function toggleCheckingIndicator() {
   $("#result-ok").hide()
   $("#result-bad").hide()
   if(checkingUsername) {
@@ -63,7 +78,13 @@ function setIndicator() {
 }
 
 function showResult(available) {
-  available ? $("#result-ok").show() : $("#result-bad").show()
+  usernameAvailable ? $("#result-ok").show() : $("#result-bad").show()
+}
+
+function clearAllInfo() {
+  $("#result-ok").hide()
+  $("#result-bad").hide()
+  $("#indicator").hide()
 }
 
 setButtonState()
