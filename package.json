@@ -1,7 +1,7 @@
 {
   "name": "frp-demo",
   "version": "1.0.0",
-  "description": "a simple register form to demostrate functional reactive programming",
+  "description": "a simple registry form to demostrate functional reactive programming",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon -w index.js index.js"

@@ -21,7 +21,8 @@ app.get("/check", function(req, res) {
 })
 
 app.post("/register", function(req, res) {
-  res.end()
+  res.set({"Content-Type": "application/json"})
+  res.end(JSON.stringify({success: true}))
 })
 
 var port = 8000

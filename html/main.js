@@ -2,89 +2,64 @@ var $username = $("[name=username]")
 var $password = $("[name=password]")
 var $btn = $("button")
 
-$btn.click(function(evt) {
-  evt.preventDefault()
-  btnClicked = true
-  setButtonState()
+function getStream($ele) {
+  return Rx.Observable.fromEvent($ele, "keyup").pluck("target", "value").distinctUntilChanged().startWith("")
+}
 
-  $.ajax({
-    type: "POST",
-    url: "/register",
+var usernameStream = getStream($username)
+var passwordStream = getStream($password)
+var btnClickedStream = Rx.Observable.fromEvent($btn, "click")
+
+var enteredStream = usernameStream.combineLatest(passwordStream, function(username, password) {
+  return username.length > 0 && password.length > 0
+})
+
+var ajaxStream = usernameStream
+  .debounce(500)
+  .filter(s => s.length > 0)
+  .flatMapLatest(s => {
+    setIndicator(true)
+    return $.getJSON("/check", {username: s})
+  })
+  .map(res => {
+    setIndicator(false)
+    setResult(res.available)
+    return res.available
+  })
+
+var availabilityStream = ajaxStream.merge(usernameStream.map(s => false))
+availabilityStream.subscribe(clearResult)
+
+var buttonStateStream = enteredStream.combineLatest(availabilityStream, (a, b) => a && b).merge(btnClickedStream.map(s => false))
+
+buttonStateStream.subscribe(
+  function(enabled) {
+    $btn.prop("disabled", !enabled)
+  }
+)
+
+function sendRequest(evt) {
+  evt.preventDefault()
+  return $.ajax({
+    url: "/registerabc",
+    method: "POST",
     data: {
       username: $username.val(),
       password: $password.val(),
     },
-    success: function() {
-      alert("Success!")
-    },
   })
-})
-
-// Status variable
-var usernameAvailable, checkingUsername, prevUsername, timeout, btnClicked, counter = 0
-
-$username.keyup(function(evt) {
-  var username = $username.val()
-  if(username === prevUsername) return
-  usernameAvailable = false
-  setButtonState()
-  clearAllInfo()
-
-  if(username.length === 0) return
-
-  if(timeout) clearTimeout(timeout)
-  prevUsername = username
-  timeout = setTimeout(function() {
-    checkingUsername = true
-    toggleCheckingIndicator()
-    var id = ++counter
-    $.ajax({
-      url: "/check",
-      data: {
-        username: $username.val(),
-      },
-      success: function(res) {
-        if(id !== counter) return
-        checkingUsername = false
-        usernameAvailable = res.available
-        setButtonState()
-        toggleCheckingIndicator()
-        showResult()
-      },
-    })
-  }, 500)
-})
-
-$password.keyup(function(evt) {
-  setButtonState()
-})
-
-function setButtonState() {
-  var enabled = $username.val().length > 0 &&
-    $password.val().length > 0 &&
-    usernameAvailable &&
-    !btnClicked
-  $btn.prop("disabled", !enabled)
 }
 
-function toggleCheckingIndicator() {
-  $("#result-ok").hide()
-  $("#result-bad").hide()
-  if(checkingUsername) {
-    $("#indicator").show()
-  } else {
-    $("#indicator").hide()
-  }
+
+function setIndicator(enabled) {
+  clearResult()
+  enabled ? $("#indicator").show() : $("#indicator").hide()
 }
 
-function showResult(available) {
-  usernameAvailable ? $("#result-ok").show() : $("#result-bad").show()
+function clearResult() {
+  $("#result-ok,#result-bad").hide()
 }
 
-function clearAllInfo() {
-  $("#result-ok").hide()
-  $("#result-bad").hide()
-  $("#indicator").hide()
+function setResult(ok) {
+  ok ? $("#result-ok").show() : $("#result-bad").show()
 }
-
-setButtonState()
