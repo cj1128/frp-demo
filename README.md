@@ -35,7 +35,10 @@ In this repo, I am gonna use jquery and RxJS to implement these features, so we 
 
 
 
+## Run the demo
 
-
-
-
+```javascript
+cd frp-demo
+npm install 
+npm run dev // now go to localhost:8000/
+```
