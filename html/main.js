@@ -10,7 +10,7 @@ var usernameStream = getStream($username)
 var passwordStream = getStream($password)
 var btnClickedStream = Rx.Observable.fromEvent($btn, "click")
 
-var enteredStream = usernameStream.combineLatest(passwordStream, function(username, password) {
+var enteredStream = usernameStream.combineLatest(passwordStream, (username, password) => {
   return username.length > 0 && password.length > 0
 })
 
@@ -32,16 +32,27 @@ availabilityStream.subscribe(clearResult)
 
 var buttonStateStream = enteredStream.combineLatest(availabilityStream, (a, b) => a && b).merge(btnClickedStream.map(s => false))
 
+btnClickedStream.flatMap(register).subscribe(
+  d => {
+    if(d.success) {
+      alert("Success!")
+    }
+  },
+  jqXHR => {
+    console.error(jqXHR.statusText)
+  }
+)
+
 buttonStateStream.subscribe(
   function(enabled) {
     $btn.prop("disabled", !enabled)
   }
 )
 
-function sendRequest(evt) {
+function register(evt) {
   evt.preventDefault()
   return $.ajax({
-    url: "/registerabc",
+    url: "/register",
     method: "POST",
     data: {
       username: $username.val(),
