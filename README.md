@@ -10,7 +10,7 @@ Now, think about a registration form, it's the most common thing on the web, nor
 
 
 
-![](https://raw.github.com/raimohanska/nulzzzblog/master/images/registration-form-ui.png)
+![](http://ww4.sinaimg.cn/large/9b85365djw1f23hsxwdsaj20tl07iwel.jpg)
 
 
 
@@ -37,8 +37,10 @@ In this repo, I am gonna use jquery and RxJS to implement these features, so we 
 
 ## Run the demo
 
-```javascript
+```bash
 cd frp-demo
 npm install 
-npm run dev // now go to localhost:8000/
+npm run dev # now go to localhost:8000/
+git checkout jquery # get the implementation using jquery
+git checkout rxjs # get the implementation using RxJS
 ```
